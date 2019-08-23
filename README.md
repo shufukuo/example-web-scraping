@@ -18,21 +18,6 @@ from datetime import datetime
 
 t0 = time.time()
 
-# 開啟瀏覽器
-browser = webdriver.Chrome()
-#browser.minimize_window()
-
-# 連線到租屋搜尋頁面
-browser.get("https://rent.591.com.tw/?kind=0&region=1")
-time.sleep(1)
-
-# 點擊取消 popup 視窗
-ele = browser.find_element_by_class_name("search-location-span ")
-action = ActionChains(browser).move_to_element(ele)
-action.click(ele)
-action.perform()
-time.sleep(1)
-
 # 宣告 empty DataFrame 儲存租屋物件資料
 df = pd.DataFrame( columns = [
         'url',            # 網址
@@ -57,7 +42,24 @@ dic_house = {
 
 # 搜尋 台北市 ele_city[0] 和 新北市 ele_city[1]
 for i in range(0,2):
+    t01 = time.time()
+    
     t00 = time.time()
+    
+    # 開啟瀏覽器
+    browser = webdriver.Chrome()
+    #browser.minimize_window()
+    
+    # 連線到租屋搜尋頁面
+    browser.get("https://rent.591.com.tw/?kind=0&region=1")
+    time.sleep(1)
+    
+    # 點擊取消 popup 視窗
+    ele = browser.find_element_by_class_name("search-location-span ")
+    action = ActionChains(browser).move_to_element(ele)
+    action.click(ele)
+    action.perform()
+    time.sleep(1)
     
     # 點擊 位置 的 縣市 選單
     ele = browser.find_element_by_class_name("search-location-span ")
@@ -70,7 +72,8 @@ for i in range(0,2):
     
     # ele_city[0]: 台北市,  ele_city[1]: 新北市
     # 點擊縣市
-    print(ele_city[i].text)
+    city_text = ele_city[i].text
+    print(city_text)
     action = ActionChains(browser).move_to_element(ele_city[i])
     action.click(ele_city[i])
     action.perform()
@@ -144,6 +147,12 @@ for i in range(0,2):
         
         print("page " + str(p+1))
     
+    browser.quit()
+    print( time.time() - t00 )
+    print("done - 取得每一頁 rent-detail urls")
+    
+    t00 = time.time()
+    
     # 宣告 DataFrame 儲存租屋物件資料
     n_lst_rent_url = len(lst_rent_url)
     tmp_df = pd.DataFrame( index = range(0, n_lst_rent_url), columns = df.columns )
@@ -200,11 +209,12 @@ for i in range(0,2):
     df = df.append(tmp_df, sort=False)
     
     browser_rent.quit()
-    
     print( time.time() - t00 )
+    print("done - 取得各 rent-detail url 內容")
+    
+    print( time.time() - t01 )
+    print( "done - " + city_text )
 
-
-browser.quit()
 
 df = df.reset_index()
 
@@ -213,5 +223,10 @@ df.to_csv( "dt.txt", na_rep = "null", index = False )
 print( time.time() - t00 )
 
 print( time.time() - t0 )
+
+
+###
+###
+###
 
 ```
